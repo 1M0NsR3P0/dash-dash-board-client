@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
+import { useDataContext } from './DataContext'
+import Loading from './Loading'
+import Chart from './Chart';
 
+
+
+const thisYear = parseInt(Date().slice(11, 15))
+const datas = []
+const newData = []
+const yearlyIntensity = []
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectYear, setSelectedYear] = useState('nothing')
+  const { queryData, rangeYear } = useDataContext()
+  const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    if (queryData === undefined) {
+      setLoading(true)
+    }
+    else {
+      setLoading(false)
+      queryData.map(every => datas.push({
+        name: `${new Date(every.published).getFullYear()}`,
+        intensity: every.intensity,
+        relevance: every.relevance,
+        amt: 2,
+      },
+      ))
+    }
+    datas.filter(every => {
+      if (every.name !== "NaN") {
+        newData.push(every)
+        if (parseInt(every.name) >= 2012 && parseInt(every.name) <= Date().slice(11, 15)) {
+          // console.log("hi")
+        }
+      }
+    }
+    )
+  }, [queryData])
+
+  // console.log(newData)
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    loading ? <Loading /> :
+      <div style={{ width: "100%",height:"100vh", gap: "50px", display: "flex",backgroundColor:"gray" }}>
+        <div style={{}}>
+          <Chart newData={newData} />
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
   )
 }
 
 export default App
+
